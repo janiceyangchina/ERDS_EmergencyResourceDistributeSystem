@@ -1,0 +1,304 @@
+namespace system;
+class ERDS{
+1 -- * Person;
+1 -- * Organization;
+1 -- * Resource;
+1 -- * Schedule;
+1 -- * Emergency;
+1 -- * Community;
+
+   public void resolvedEmergency(Emergency emergency){
+     emergency.transportResourceToDestination();
+  }
+}
+
+class Emergency{
+ location;
+ state{
+   
+    Declared{
+      finishDeclaring->Responded;
+    }
+    Responded{
+  
+      continueProvideResource->Responded;
+      coordiniateResource->Scheduled;
+    }
+    Scheduled{
+     scheduleTransportation->Scheduled;
+     transportResourceToDestination->Resolved;
+    }
+  Resolved{}
+  }
+ 
+ 
+ before setLocation {
+      if (aLocation.length() <= 2 || aLocation.length() >= 20 ){return false;}
+ }
+ 1 -- * ResourceNeed;
+ 1 -- 1..* Community;
+}
+
+class Community{
+ name;
+ before setName {
+      if (aName.length() <= 2 || aName.length() >= 20 ){return false;}
+ }
+
+}
+
+class SimpleDateFormat {
+String date;
+public String format(String datePased){
+	// Assumes we do the formatting and send back the formatted date
+	return date;
+	}
+}
+
+
+class Schedule{
+ transportationStartDate;
+ transportationArriveDate;
+ SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
+ before setTransportationStartDate {
+       if (aTransportationStartDate != df.format(aTransportationStartDate)){return false;}
+  }
+before setTransportationArriveDate {
+      if (aTransportationArriveDate != df.format(aTransportationArriveDate)){return false;}
+      if (transportationStartDate.compareTo(aTransportationArriveDate) != -1){return false;}
+ }
+ 
+ 1 -- * ResourceMatch;
+ 0..1 -- 1 TransportAvailability;
+}
+
+class ResourceMatch{
+ 0..1 -- 1 ResourceAvailability;
+ * -- 1 ResourceNeed;
+}
+
+class ResourceAvailability{
+ state{
+   Available{
+    coordinateResource->Allocated;}
+   Allocated{  
+    cancel->Available;
+    transportResource->OnTheWay;
+  } 
+  OnTheWay{
+   returnBack->Available;
+  transportResourceToDestination-> Arrived;  
+}
+Arrived{} };
+ int quantity;
+ before setQuantity {
+      if (aQuantity <= 0){return false;}
+ }
+ 0..* -- 1 Organization;
+ * -- 1 Resource;
+public ResourceAvailability split(int quantity){
+	ResourceAvailability ra = new ResourceAvailability( quantity, getOrganization(), getResource() );
+	this.quantity = getQuantity()-quantity;
+	ra.setQuantity(quantity);
+	return ra;
+}
+
+}
+
+class Resource{
+name;
+ description;
+ before setDescription {
+      if (aDescription.length() <= 2 || aDescription.length() >= 20 ){return false;}
+ }
+ }
+
+class TransportAvailability{
+ TransportationType type;
+ geographicRange;
+ before setGeographicRange {
+      if (aGeographicRange.length() <= 2 || aGeographicRange.length() >= 20 ){return false;}
+ }
+
+isA ResourceAvailability;
+}
+
+class ResourceNeed{
+ int requiredQuantity;
+ before setRequiredQuantity {
+      if (aRequiredQuantity <= 0){return false;}
+ }
+ 
+ 0..* -- 1 Resource;
+}
+
+class Organization{
+ name;
+ location;
+ before setName {
+      if (aName.length() <= 2 || aName.length() >= 20 ){return false;}
+ }
+ before setLocation {
+      if (aLocation.length() <= 2 || aLocation.length() >= 20 ){return false;}
+ }
+
+ 1 -- * Person;
+}
+
+class Charity{
+isA Organization;
+}
+
+class Company{
+isA Organization;
+}
+
+class GovermentalOrganization{
+isA Organization;
+}
+
+class Person{
+ name;
+ int age;
+ gender;
+ before setName {
+      if (aName.length() <= 2 || aName.length() >= 20 ){return false;}
+ }
+ before setAge {
+      if (aAge <= 18 || aAge >=150 ){return false;}
+ }
+ before setGender {
+      if ( (! aGender.equals("Female")) && (!aGender.equals("Male")) ){return false;}
+ }
+
+ * -- * Skill;
+}
+
+class Skill{
+ isA Resource;
+}
+
+class Package{
+int quantityUnits;
+int dimension;
+int weight;
+ before setQuantityUnits {
+      if (aQuantityUnits <= 0){return false;}
+ }
+ before setDimension {
+      if (aDimension <= 0){return false;}
+ }
+ before setWeight {
+      if (aWeight <= 0){return false;}
+ }
+
+ isA Resource;
+}
+
+class Transportation{
+ cargoCapacity;
+
+ isA Resource;
+}
+
+class TransportationType{
+ air;
+ sea;
+ land;
+}
+
+
+//$?[End_of_model]$?
+
+class ERDS
+{
+  position 50 30 109 45;
+}
+
+class Emergency
+{
+  position 50 130 109 45;
+}
+
+class Community
+{
+  position 50 230 109 45;
+}
+
+class Schedule
+{
+  position 50 330 109 45;
+}
+
+class ResourceMatch
+{
+  position 50 430 109 45;
+}
+
+class ResourceAvailability
+{
+  position 250 30 109 45;
+}
+
+class Resource
+{
+  position 250 130 109 45;
+}
+
+class TransportAvailability
+{
+  position 250 230 109 45;
+}
+
+class ResourceNeed
+{
+  position 250 330 109 45;
+}
+
+class Organization
+{
+  position 250 430 109 45;
+}
+
+class Charity
+{
+  position 450 30 109 45;
+}
+
+class Company
+{
+  position 450 130 109 45;
+}
+
+class GovermentalOrganization
+{
+  position 450 230 109 45;
+}
+
+class Person
+{
+  position 450 330 109 45;
+}
+
+class Skill
+{
+  position 450 430 109 45;
+}
+
+class Package
+{
+  position 650 30 109 45;
+}
+
+class Transportation
+{
+  position 650 130 109 45;
+}
+
+class TransportationType
+{
+  position 650 230 109 45;
+}
+
+
+
